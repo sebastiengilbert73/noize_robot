@@ -5,6 +5,7 @@
 #include <unistd.h> // usleep()
 #include "KeyValueMessage.h"
 #include "noize_robot/Headlights.h"
+#include "noize_robot/TrackMotors.h"
 #include "SocketServer.h"
 
 using namespace std;
@@ -22,6 +23,7 @@ int main(int argc, char **argv)
 	ros::NodeHandle nodeHdl;
 	// Declare publishers
 	ros::Publisher headlights_pub = nodeHdl.advertise<noize_robot::Headlights>("Headlights", 1000);
+	ros::Publisher trackMotors_pub = nodeHdl.advertise<noize_robot::TrackMotors>("TrackMotors", 1000);
 	
 	ROS_INFO_STREAM("socket_listener.cpp main() version = " << version);
 	
@@ -70,6 +72,43 @@ int main(int argc, char **argv)
 					headlightsMsg.leftBlue = 255;	headlightsMsg.rightBlue = 255;
 					headlights_pub.publish(headlightsMsg);
 				}
+			}
+			int leftMotorValue = 0, rightMotorValue = 0;
+			noize_robot::TrackMotors trackMotorsMsg;
+			trackMotorsMsg.leftMotor = 0; trackMotorsMsg.rightMotor = 0;
+			if (interpret.KeyIsPresent("stop", msg) )
+				trackMotors_pub.publish(trackMotorsMsg);
+			if (interpret.ValueAsInt("moveForward", msg, &leftMotorValue) )
+			{
+				trackMotorsMsg.leftMotor = leftMotorValue; 
+				trackMotorsMsg.rightMotor = leftMotorValue;
+				trackMotors_pub.publish(trackMotorsMsg);
+			}
+			if (interpret.ValueAsInt("moveBackward", msg, &leftMotorValue) )
+			{
+				trackMotorsMsg.leftMotor = -leftMotorValue; 
+				trackMotorsMsg.rightMotor = -leftMotorValue;
+				trackMotors_pub.publish(trackMotorsMsg);
+			}
+			if (interpret.ValueAsInt("turnLeft", msg, &leftMotorValue) )
+			{
+				trackMotorsMsg.leftMotor = -leftMotorValue; 
+				trackMotorsMsg.rightMotor = leftMotorValue;
+				trackMotors_pub.publish(trackMotorsMsg);
+			}
+			if (interpret.ValueAsInt("turnRight", msg, &leftMotorValue) )
+			{
+				trackMotorsMsg.leftMotor = leftMotorValue; 
+				trackMotorsMsg.rightMotor = -leftMotorValue;
+				trackMotors_pub.publish(trackMotorsMsg);
+			}
+			if (interpret.KeyIsPresent("leftMotor", msg) || interpret.KeyIsPresent("rightMotor", msg) )
+			{
+				interpret.ValueAsInt("leftMotor", msg, &leftMotorValue);
+				interpret.ValueAsInt("rightMotor", msg, &rightMotorValue);
+				trackMotorsMsg.leftMotor = leftMotorValue; 
+				trackMotorsMsg.rightMotor = rightMotorValue;
+				trackMotors_pub.publish(trackMotorsMsg);
 			}
 		}
 		ros::spinOnce();

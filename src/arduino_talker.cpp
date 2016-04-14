@@ -8,6 +8,7 @@
 #include <unistd.h> // usleep()
 #include "KeyValueMessage.h"
 #include "noize_robot/Headlights.h"
+#include "noize_robot/TrackMotors.h"
 
 using namespace std;
 
@@ -37,12 +38,27 @@ void SendHeadlightsToArduino(const noize_robot::Headlights::ConstPtr& msg)
 	writeLock = false;
 }
 
+void SendTrackMotorsToArduino(const noize_robot::TrackMotors::ConstPtr& msg)
+{
+	while (writeLock)
+	{
+		usleep(1000);
+	}
+	writeLock = true;
+	stringstream msgStrm;
+	msgStrm << "leftMotor=" << msg->leftMotor << " rightMotor=" << msg->rightMotor << " " << endOfMessageChar;
+	ROS_INFO_STREAM("SendTrackMotorsToArduino(): msgStrm.str().c_str() = " << msgStrm.str().c_str());
+	serialPuts(serialFileDesc, msgStrm.str().c_str());
+	writeLock = false;
+}
+
 int main(int argc, char **argv)
 {
 	// Initialize ROS node
 	ros::init(argc, argv, "arduino_talker");
 	ros::NodeHandle nodeHdl;
 	ros::Subscriber headlightsSub = nodeHdl.subscribe("Headlights", 1000, SendHeadlightsToArduino);
+	ros::Subscriber trackMotorsSub = nodeHdl.subscribe("TrackMotors", 1000, SendTrackMotorsToArduino);
 	
 	ROS_INFO_STREAM("arduino_talker.cpp main() version = " << version);
 	
