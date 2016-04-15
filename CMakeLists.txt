@@ -50,6 +50,7 @@ find_package(catkin REQUIRED COMPONENTS
    FrontContactSwitches.msg
    Headlights.msg
    TrackMotors.msg
+   CameraAzimuth.msg
  )
 
 ## Generate services in the 'srv' folder

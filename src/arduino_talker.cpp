@@ -9,10 +9,11 @@
 #include "KeyValueMessage.h"
 #include "noize_robot/Headlights.h"
 #include "noize_robot/TrackMotors.h"
+#include "noize_robot/CameraAzimuth.h"
 
 using namespace std;
 
-string version = "2016-04-07";
+string version = "2016-04-14";
 
 string serialPortName = "/dev/ttyAMA0";
 int serialFileDesc = -1;
@@ -52,6 +53,31 @@ void SendTrackMotorsToArduino(const noize_robot::TrackMotors::ConstPtr& msg)
 	writeLock = false;
 }
 
+void SendCameraAzimuthToArduino(const noize_robot::CameraAzimuth::ConstPtr& msgPtr)
+{
+	while (writeLock)
+	{
+		usleep(1000);
+	}
+	writeLock = true;
+	stringstream msgStrm;
+	if (msgPtr->lookCenter)
+	{
+		msgStrm << "lookCenter=true " << endOfMessageChar;
+		serialPuts(serialFileDesc, msgStrm.str().c_str());
+	}
+	else
+	{
+		if (msgPtr->deltaTheta < 0)
+			msgStrm << "lookLeft=" << -(msgPtr->deltaTheta) << " " << endOfMessageChar;
+		else
+			msgStrm << "lookRight=" << msgPtr->deltaTheta << " " << endOfMessageChar;
+		serialPuts(serialFileDesc, msgStrm.str().c_str());
+	}
+	ROS_INFO_STREAM("SendCameraAzimuthToArduino(): msgStrm.str().c_str() = " << msgStrm.str().c_str());
+	writeLock = false;
+}
+
 int main(int argc, char **argv)
 {
 	// Initialize ROS node
@@ -59,6 +85,7 @@ int main(int argc, char **argv)
 	ros::NodeHandle nodeHdl;
 	ros::Subscriber headlightsSub = nodeHdl.subscribe("Headlights", 1000, SendHeadlightsToArduino);
 	ros::Subscriber trackMotorsSub = nodeHdl.subscribe("TrackMotors", 1000, SendTrackMotorsToArduino);
+	ros::Subscriber cameraAzimuthSum = nodeHdl.subscribe("CameraAzimuth", 1000, SendCameraAzimuthToArduino);
 	
 	ROS_INFO_STREAM("arduino_talker.cpp main() version = " << version);
 	
