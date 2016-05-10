@@ -162,6 +162,7 @@ void* TalkingThread(void* castSocketCommunicationDataPtr)
 				throw runtime_error(msg.str());
 			}
 		}
+		usleep(1000);
 	}
 	return NULL;
 }

@@ -11,7 +11,7 @@
 
 using namespace std;
 
-string version = "V2016-04-14";
+string version = "V2016-05-09";
 const double ros_rate_inHz = 100.0;
 const char endOfMessageChar = '|';
 KeyValueMessage interpret;
@@ -71,6 +71,13 @@ int main(int argc, char **argv)
 				}
 				else if (color == "blue")
 				{
+					headlightsMsg.leftBlue = 255;	headlightsMsg.rightBlue = 255;
+					headlights_pub.publish(headlightsMsg);
+				}
+				else if (color == "white")
+				{
+					headlightsMsg.leftRed = 255;	headlightsMsg.rightRed = 255;
+					headlightsMsg.leftGreen = 255;	headlightsMsg.rightGreen = 255;
 					headlightsMsg.leftBlue = 255;	headlightsMsg.rightBlue = 255;
 					headlights_pub.publish(headlightsMsg);
 				}

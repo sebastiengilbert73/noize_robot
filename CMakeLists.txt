@@ -141,14 +141,14 @@ include_directories(
 #    wiringPi
 #)
 
-add_executable(arduino_talker src/arduino_talker.cpp
-     src/KeyValueMessage.cpp
-)
+#add_executable(arduino_talker src/arduino_talker.cpp
+#     src/KeyValueMessage.cpp
+#)
 
-target_link_libraries(arduino_talker
-     ${catkin_LIBRARIES}
-     wiringPi
-)
+#target_link_libraries(arduino_talker
+#     ${catkin_LIBRARIES}
+#     wiringPi
+#)
 
 #add_executable(collision_manager src/collision_manager.cpp
 #)
